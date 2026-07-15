@@ -113,20 +113,39 @@ Example of a code group:
 
 <CodeGroup>
 ```javascript Node.js
-const response = await fetch('/api/endpoint', {
-  headers: { Authorization: `Bearer ${apiKey}` }
-});
+try {
+  const response = await fetch('/api/endpoint', {
+    headers: { Authorization: `Bearer ${apiKey}` }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data = await response.json();
+} catch (error) {
+  console.error('Failed to fetch endpoint:', error);
+  throw error;
+}
 ```
 
 ```python Python
 import requests
-response = requests.get('/api/endpoint', 
-  headers={'Authorization': f'Bearer {api_key}'})
+
+try:
+    response = requests.get('/api/endpoint',
+      headers={'Authorization': f'Bearer {api_key}'})
+    response.raise_for_status()
+    data = response.json()
+except requests.exceptions.RequestException as error:
+    print(f'Failed to fetch endpoint: {error}')
+    raise
 ```
 
 ```curl cURL
 curl -X GET '/api/endpoint' \
-  -H 'Authorization: Bearer YOUR_API_KEY'
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  --fail --show-error
 ```
 </CodeGroup>
 
